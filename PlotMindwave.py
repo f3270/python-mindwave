@@ -1,17 +1,14 @@
 #coding: latin-1
+# Run me with frameworkpython inside a virtual environment.
 
-# Run me with frameworkpython
+# This program connect to ThinkGear and receives via TCP/IP all the
+# raw streaming from NeuroSky MindWave Mobile (the black headset)
+# It also plot the signal using matplotlib.
 
-import numpy as np
+import socket
+import json
 
-import mindwave, time
 import matplotlib.pyplot as plt
-
-
-headset = mindwave.Headset('/dev/tty.MindWaveMobile-DevA','ef47')
-
-time.sleep(2)
-
 
 class Plotter:
 
@@ -67,28 +64,34 @@ class Plotter:
           self.z[:] = []
 
 
+import mindwave, time
 
+headset = mindwave.Headset('/dev/tty.MindWaveMobile-DevA','ef47')
 
-class mymindwave:
-    def __init__(self):
-        self.raw = 0
-        self.plotter = Plotter(500,-1000,1000)
+time.sleep(2)
 
-    def on_raw(self, headset, rawvalue):
-        self.raw = rawvalue
-        print "Raw %d" % (self.raw)
-        self.plotter.plotdata( [rawvalue, 0, 0])
+plotter = Plotter(500,-500,500)
 
-#def on_raw(headset, rawvalue):
-#    plotter.plotdata( [rawvalue, 0, 0])
-my = mymindwave()
-headset.raw_value_handlers.append( my.on_raw )
+attention = 0
+meditation = 0
+eeg = 0
+
+# def on_raw( headset, rawvalue):
+#     time.sleep(.01)
+#     print "Count %d :Raw value: %s, Attention: %s, Meditation: %s" % (headset.count, headset.raw_value, headset.attention, headset.meditation)
+#     (eeg, attention, meditation) = (headset.raw_value, headset.count, headset.meditation)
+#     plotter.plotdata( [eeg, attention, meditation])
+#
+# headset.raw_value_handlers.append( on_raw )
 
 try:
+    while (headset.poor_signal > 5):
+        print "Headset signal is too bad %d. Adjust the headset to fit your head." % (headset.poor_signal)
+
     while (True):
-        print "Attention: %s, Meditation: %s" % (headset.attention, headset.meditation)
-except KeyboardInterrupt as e:
-    print e.message
+        time.sleep(.01)
+        (eeg, attention, meditation) = (headset.raw_value, headset.count, headset.meditation)
+        plotter.plotdata( [eeg, attention, meditation])
 finally:
-    print "Disconnecting..."
     headset.disconnect()
+    headset.serial_close()

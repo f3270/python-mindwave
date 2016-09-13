@@ -1,3 +1,8 @@
+Changes for this Fork
+---------------------
+
+* Added code to interact with ThinkGear via TCP/IP
+
 mindwave-python
 ===============
 

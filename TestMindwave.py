@@ -1,4 +1,5 @@
 import mindwave, time
+from pprint import pprint
 
 headset = mindwave.Headset('/dev/tty.MindWaveMobile-DevA','ef47')
 
@@ -14,26 +15,19 @@ time.sleep(2)
 #         print "Retrying connect..."
 # print "Connected."
 
-myraw = 0
+def on_raw( headset, rawvalue):
+    print "Count %d :Raw value: %s, Attention: %s, Meditation: %s" % (headset.count, headset.raw_value, headset.attention, headset.meditation)
 
-class mymindwave:
-    def __init__(self):
-        self.raw = 0
+headset.raw_value_handlers.append( on_raw )
 
-    def on_raw(self, headset, rawvalue):
-        self.raw = rawvalue
-        print "Raw %d" % (self.raw)
-
-my = mymindwave()
-headset.raw_value_handlers.append( my.on_raw )
-
-print headset.poor_signal
 
 try:
+    while (headset.poor_signal > 5):
+        print "Headset signal is too bad %d. Adjust the headset to fit your head." % (headset.poor_signal)
+
     while (True):
-        print "Attention: %s, Meditation: %s" % (headset.attention, headset.meditation)
+        time.sleep(.01)
+        #print "Count %d :Raw value: %s, Attention: %s, Meditation: %s" % (headset.count, headset.raw_value, headset.attention, headset.meditation)
+        #pprint(headset.waves)
 finally:
     headset.disconnect()
-
-
-headset.disconnect()
