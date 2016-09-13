@@ -11,7 +11,7 @@ Basic Usage
 A connection to the headset dongle is established by creating a new `Headset` object. Find the MindWave device(s) on your machine. On a Mac, it looks like this:
 
     import mindwave
-    
+
     headset = mindwave.Headset('/dev/tty.MindWave', '625f')
 
 Pass in the device path and the headset ID printed inside the battery case.
@@ -19,20 +19,20 @@ Pass in the device path and the headset ID printed inside the battery case.
 It's recommended to wait at least a couple seconds before connecting the dongle to the headset:
 
     import mindwave, time
-    
+
     headset = mindwave.Headset('/dev/tty.MindWave', '625f')
     time.sleep(2)
-    
+
     headset.connect()
     print "Connecting..."
-    
+
     while headset.status != 'connected':
         time.sleep(0.5)
         if headset.status == 'standby':
             headset.connect()
             print "Retrying connect..."
     print "Connected."
-    
+
     while True:
         print "Attention: %s, Meditation: %s" % (headset.attention, headset.meditation)
 
@@ -45,7 +45,7 @@ Auto-connect
 The library can also auto-connect the dongle to the first available headset, rather than specifying a headset ID.
 
     import mindwave, time
-    
+
     headset = mindwave.Headset('/dev/tty.MindWave')
     time.sleep(2)
     headset.connect()
@@ -59,11 +59,11 @@ Multiple headsets
 The library can handle multiple devices used simultaneously.
 
     import mindwave, time
-    
+
     h1 = mindwave.Headset('/dev/tty.MindWave', '625f')
     h2 = mindwave.Headset('/dev/tty.MindWave2', 'a662')
     time.sleep(2)
-    
+
     h1.connect()
     print "Connecting h1..."
     while h1.status != 'connected':
@@ -72,7 +72,7 @@ The library can handle multiple devices used simultaneously.
             h1.connect()
             print "Retrying connect..."
     print "Connected h1."
-    
+
     h2.connect()
     print "Connecting h2..."
     while h2.status != 'connected':
@@ -81,7 +81,7 @@ The library can handle multiple devices used simultaneously.
             h2.connect()
             print "Retrying connect..."
     print "Connected h2."
-    
+
     while True:
         print "Attention 1: %s, Meditation 1: %s" % (h1.attention, h1.meditation)
         print "Attention 2: %s, Meditation 2: %s" % (h2.attention, h2.meditation)
@@ -94,9 +94,16 @@ The library provides hooks for certain events to allow for the attachment of cus
 
     def on_blink(headset, blink_strength):
         print "Blink detected. Strength: %s" % blink_strength
-    
+
     headset.blink_handlers.append(on_blink)
 
+
+Raw:
+
+    def on_raw(headset, rawvalue):
+        print "Raw Value %d" % (rawvalue)
+
+    headset.raw_value_handlers.append( on_raw )
 
 API
 ===
@@ -154,3 +161,4 @@ Event hooks
 
 `headset.` **standby_handlers** `[]` - Handlers are fired whenever the dongle goes into standby (not connected to a headset). Expects handlers with the prototype `my_function(headset)` and passes in the current headset object.
 
+`headset.` **raw_value_handlers** `[]` - Handlers are fired whenever the dongle receives raw EEG values. Expects handlers with the prototype `my_function(headset, rawvalue)` and passes in the current headset object.
