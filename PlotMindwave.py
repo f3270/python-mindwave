@@ -8,6 +8,8 @@
 import socket
 import json
 
+import time, datetime, sys
+
 import matplotlib.pyplot as plt
 
 class Plotter:
@@ -84,14 +86,21 @@ eeg = 0
 #
 # headset.raw_value_handlers.append( on_raw )
 
+ts = time.time()
+st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d-%H-%M-%S')
+f = open('./data/eeg.'+st+'.dat', 'w')
+
 try:
     while (headset.poor_signal > 5):
-        print "Headset signal is too bad %d. Adjust the headset to fit your head." % (headset.poor_signal)
+        print "Headset signal noisy %d. Adjust the headset to adjust better to your forehead." % (headset.poor_signal)
 
     while (True):
         time.sleep(.01)
         (eeg, attention, meditation) = (headset.raw_value, headset.count, headset.meditation)
-        plotter.plotdata( [eeg, attention, meditation])
+        #plotter.plotdata( [eeg, attention, meditation])
+        plotter.plotdata( [eeg, 0, 0])
+        f.write( str(eeg) + ' ' + str(attention) + ' ' + str(meditation) + '\n')
 finally:
     headset.disconnect()
     headset.serial_close()
+    f.close()
