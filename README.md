@@ -2,6 +2,9 @@ Changes for this Fork
 ---------------------
 
 * Added code to interact with ThinkGear via TCP/IP
+* Added code to Plot the raw eeg signal and record it.
+* Added code to use computer's camera to record a concurrent video of the user
+*   wearing the headset.
 
 mindwave-python
 ===============
