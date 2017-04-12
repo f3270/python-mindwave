@@ -1,4 +1,5 @@
 #coding: latin-1
+#
 # Run me with frameworkpython inside a virtual environment.
 
 # This program connect to ThinkGear and receives via TCP/IP all the
@@ -88,18 +89,23 @@ eeg = 0
 
 ts = time.time()
 st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d-%H-%M-%S')
-f = open('./data/eeg.'+st+'.dat', 'w')
+filename = './data/eeg.'+st+'.dat'
+f = open(filename, 'w')
 
 try:
     while (headset.poor_signal > 5):
         print "Headset signal noisy %d. Adjust the headset to adjust better to your forehead." % (headset.poor_signal)
 
+    print "Writing output to "+filename
     while (True):
         time.sleep(.01)
         (eeg, attention, meditation) = (headset.raw_value, headset.count, headset.meditation)
         #plotter.plotdata( [eeg, attention, meditation])
         plotter.plotdata( [eeg, 0, 0])
-        f.write( str(eeg) + ' ' + str(attention) + ' ' + str(meditation) + '\n')
+
+        ts = time.time()
+        st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d-%H-%M-%S.%f')
+        f.write( str(st) + ' ' + str(eeg) + ' ' + str(attention) + ' ' + str(meditation) + '\n')
 finally:
     headset.disconnect()
     headset.serial_close()
