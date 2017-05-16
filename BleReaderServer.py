@@ -2,11 +2,15 @@
 #
 # Run me with frameworkpython inside a virtual environment.
 
-# This program connect to ThinkGear and receives via TCP/IP all the
-# raw streaming from NeuroSky MindWave Mobile (the black headset)
-# It also plot the signal using matplotlib.
+# This program connects to Neurosky Mindwave Mobile (the black version) using
+# bluetooth (bluetooth to serial connection). It does not need the TGC server
+# running on the computer thanks to mindwave.py code that can handle the comm
+# protocol.
 
-import socket,select
+# At the same time this piece of code set up a multiclient TCP/IP server on port
+# 13855 so that the same data can be shared among many clients.
+
+import socket, select
 import json
 
 import time, datetime, sys
@@ -69,6 +73,7 @@ class Plotter:
 
 import mindwave, time
 
+# Hardcoded serial number of my Mindwave device.
 headset = mindwave.Headset('/dev/tty.MindWaveMobile-DevA','ef47')
 
 time.sleep(2)
@@ -87,26 +92,79 @@ eeg = 0
 #
 # headset.raw_value_handlers.append( on_raw )
 
+conn_list = []
+serversock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server_address = ('0.0.0.0', 13855)
+serversock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR,1)
+print >> sys.stderr, 'Starting up on %s port %s', server_address
+serversock.bind(server_address)
+serversock.listen(10)
+
+conn_list.append( serversock )
+
+
 ts = time.time()
 st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d-%H-%M-%S')
 filename = './data/eeg.'+st+'.dat'
 f = open(filename, 'w')
 
-try:
-    while (headset.poor_signal > 5):
-        print "Headset signal noisy %d. Adjust the headset to adjust better to your forehead." % (headset.poor_signal)
+while (headset.poor_signal > 5):
+    print "Headset signal noisy %d. Adjust the headset to adjust better to your forehead." % (headset.poor_signal)
 
+try:
+    counter = 0
     print "Writing output to "+filename
     while (True):
         time.sleep(.01)
-        (eeg, attention, meditation) = (headset.raw_value, headset.count, headset.meditation)
+        (eeg, attention, meditation) = (headset.raw_value, headset.attention, headset.meditation)
         #plotter.plotdata( [eeg, attention, meditation])
-        plotter.plotdata( [eeg, 0, 0])
+        plotter.plotdata( [eeg, attention, meditation])
 
         ts = time.time()
         st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d-%H-%M-%S.%f')
         f.write( str(st) + ' ' + str(eeg) + ' ' + str(attention) + ' ' + str(meditation) + '\n')
+
+        read_sockets,write_sockets,error_sockets = select.select(conn_list, [],[])
+
+        for connsock in read_sockets:
+            if connsock == serversock:
+                sockfd, addr = serversock.accept()
+                conn_list.append( sockfd )
+                print "Client (%s, %s) connected " % addr
+
+            else:
+                try:
+                    sent = connsock.send(str(eeg) + ' ' + str(attention) + ' ' + str(meditation) +  ' ' + str(counter) + '\r\n')
+
+                except:
+                    print  "Client (%s, %s) is offline " % addr
+                    connsock.close()
+                    conn_list.remove(connsock)
+                    continue
+
+        counter = counter + 1
+        if (counter >= 256):
+            counter = 0
+except Exception as e:
+    print e
 finally:
     headset.disconnect()
     headset.serial_close()
     f.close()
+    serversock.close()
+
+
+try:
+    headset.disconnect()
+    headset.serial_close()
+    print 'Serial released'
+finally:
+    pass
+
+try:
+    f.close()
+    sock.close()
+    serversock.close()
+    print 'Socket released'
+finally:
+    pass
