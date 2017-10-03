@@ -14,7 +14,7 @@ cap.set(4,480)
 w = cap.get(cv2.CAP_PROP_FRAME_WIDTH);
 h = cap.get(cv2.CAP_PROP_FRAME_HEIGHT);
 fourcc = cv2.VideoWriter_fourcc(*"MJPG")
-out = cv2.VideoWriter('./data/output.avi',fourcc, 15.0, (int(w),int(h)))
+out = cv2.VideoWriter('./data/output.avi',fourcc, 24.0, (int(w),int(h)))
 
 while (True):
     ret, frame = cap.read()

@@ -5,6 +5,8 @@
 # This program connect to ThinkGear and receives via TCP/IP all the
 # raw streaming from NeuroSky MindWave Mobile (the black headset)
 # It also plot the signal using matplotlib.
+#
+# Fs = 128
 
 import socket,select
 import json
@@ -12,6 +14,15 @@ import json
 import time, datetime, sys
 
 import matplotlib.pyplot as plt
+
+import sys
+
+# Please provide the number of sample points to take
+if (len(sys.argv) > 1):
+    samplepoints = int(sys.argv[1])
+else:
+    samplepoints = 1000
+
 
 class Plotter:
 
@@ -23,6 +34,7 @@ class Plotter:
         self.x = []
         self.y = []
         self.z = []
+        self.w = []
 
         self.fig = plt.figure()
         self.ax = self.fig.add_subplot(111)
@@ -30,6 +42,7 @@ class Plotter:
         self.line1, = self.ax.plot(self.x,'r', label='X') # Returns a tuple of line objects, thus the comma
         self.line2, = self.ax.plot(self.y,'g', label='Y')
         self.line3, = self.ax.plot(self.z,'b', label='Z')
+        self.line4, = self.ax.plot(self.w,'y', label='W')
 
         self.rangeval = rangeval
         self.ax.axis([0, rangeval, minval, maxval])
@@ -43,16 +56,19 @@ class Plotter:
         self.x.append( float(new_values[0]))
         self.y.append( float(new_values[1]))
         self.z.append( float(new_values[2]))
+        self.w.append( float(new_values[3]))
 
         self.plotx.append( self.plcounter )
 
         self.line1.set_ydata(self.x)
         self.line2.set_ydata(self.y)
         self.line3.set_ydata(self.z)
+        self.line4.set_ydata(self.w)
 
         self.line1.set_xdata(self.plotx)
         self.line2.set_xdata(self.plotx)
         self.line3.set_xdata(self.plotx)
+        self.line4.set_xdata(self.plotx)
 
         self.fig.canvas.draw()
         plt.pause(0.0001)
@@ -65,6 +81,7 @@ class Plotter:
           self.x[:] = []
           self.y[:] = []
           self.z[:] = []
+          self.w[:] = []
 
 
 import mindwave, time
@@ -97,16 +114,15 @@ try:
         print "Headset signal noisy %d. Adjust the headset to adjust better to your forehead." % (headset.poor_signal)
 
     print "Writing output to "+filename
-    while (True):
+    for i in range(1,samplepoints):
         time.sleep(.01)
-        (eeg, attention, meditation) = (headset.raw_value, headset.count, headset.meditation)
-        #plotter.plotdata( [eeg, attention, meditation])
-        plotter.plotdata( [eeg, 0, 0])
+        (eeg, attention, meditation, blink) = (headset.raw_value, headset.count, headset.meditation, headset.blink)
+        plotter.plotdata( [eeg, attention, meditation, blink])
+        #plotter.plotdata( [eeg, 0, 0])
 
         ts = time.time()
         st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d-%H-%M-%S.%f')
-        f.write( str(st) + ' ' + str(eeg) + ' ' + str(attention) + ' ' + str(meditation) + '\n')
+        f.write( str(st) + ' ' + str(eeg) + ' ' + str(attention) + ' ' + str(meditation) + ' ' + str(blink) + '\n')
 finally:
-    headset.disconnect()
-    headset.serial_close()
+    headset.stop()
     f.close()

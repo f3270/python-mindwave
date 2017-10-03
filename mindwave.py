@@ -43,6 +43,8 @@ class Headset(object):
             """Run the listener thread."""
             s = self.headset.dongle
 
+            self.headset.running = True
+
             # Re-apply settings to ensure packet stream
             s.write(DISCONNECT)
             d = s.getSettingsDict()
@@ -50,7 +52,7 @@ class Headset(object):
                 d['rtscts'] = not d['rtscts']
                 s.applySettingsDict(d)
 
-            while True:
+            while self.headset.running:
                 # Begin listening for packets
                 try:
                     if s.read() == SYNC and s.read() == SYNC:
@@ -77,8 +79,12 @@ class Headset(object):
                 except (select.error, OSError):
                     break
                 except serial.SerialException:
-                    s.close()
                     break
+
+
+            print('Closing connection...')
+            if s and s.isOpen():
+                s.close()
 
         def parse_payload(self, payload):
             """Parse the payload to determine an action."""
@@ -226,6 +232,7 @@ class Headset(object):
         self.waves = {}
         self.status = None
         self.count = 0
+        self.running = False
 
         # Create event handler lists
         self.poor_signal_handlers = []
@@ -280,3 +287,6 @@ class Headset(object):
     def serial_close(self):
         """Close the serial connection."""
         self.dongle.close()
+
+    def stop(self):
+        self.running = False
