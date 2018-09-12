@@ -1,5 +1,11 @@
 #coding: latin-1
+#
+# STEM - Blinking Counter
 
+# Este programa es un ejemplo de utilizacion de python para implementar un simple
+# contador de penstaneos basados en una senal de EMG/EMG/EOG.
+#
+# Frecuencia de sampleo Fs = 128
 import csv
 import numpy as np
 
@@ -12,7 +18,7 @@ print 'Este programa tiene que ejecutarse con python 2.7!'
 with open('blinking.dat') as inputfile:
     for row in csv.reader(inputfile):
         rows = row[0].split(' ')
-        results.append(rows[0:])
+        results.append(rows[1:])
 
 print 'Longitud del archivo:'+str(len(results))
 
@@ -27,7 +33,7 @@ results = results.astype(int)
 # en relación a las muestras (1:100 serian las muestras) representante
 # del tiempo.
 # La segunda columna, corresponde a: eeg, attention y meditation.
-eeg = results[1:100,0]
+eeg = results[1:,0]
 
 print eeg
 

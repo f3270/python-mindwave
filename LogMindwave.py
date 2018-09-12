@@ -109,21 +109,26 @@ st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d-%H-%M-%S')
 filename = './data/eeg.'+st+'.dat'
 f = open(filename, 'w')
 
+def on_raw( headset, rawvalue):
+    #time.sleep(.01)
+    (count,eeg, attention, meditation, blink) = (headset.count, headset.raw_value, headset.attention, headset.meditation, headset.blink)
+    print "Count %d :Raw value: %s, Attention: %s, Meditation: %s, Blink: %s" % (headset.count, headset.raw_value, headset.attention, headset.meditation, headset.blink)
+
+    ts = time.time()
+    st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d-%H-%M-%S.%f')
+    f.write( str(st) + ' ' + str(eeg) + ' ' + str(attention) + ' ' + str(meditation) + ' ' + str(blink) + '\n')
+
+headset.raw_value_handlers.append( on_raw )
+
 try:
     while (headset.poor_signal > 5):
         print "Headset signal noisy %d. Adjust the headset to adjust better to your forehead." % (headset.poor_signal)
 
     print "Writing %d seconds output to %s" % (lamdalength,filename)
-    for i in range(0,samplepoints):
+    stime = time.time()
+    while ((time.time()-stime)<lamdalength):
         time.sleep(.01)
-        (count,eeg, attention, meditation, blink) = (headset.count, headset.raw_value, headset.attention, headset.meditation, headset.blink)
-
-        plotter.plotdata( [eeg, attention, meditation, blink])
-        #plotter.plotdata( [eeg, 0, 0])
-        ts = time.time()
-        st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d-%H-%M-%S.%f')
-        f.write( str(st) + ' ' + str(eeg) + ' ' + str(attention) + ' ' + str(meditation) + ' ' + str(blink) + '\n')
-
+        pass
 
 finally:
     headset.stop()
