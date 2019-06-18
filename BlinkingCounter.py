@@ -1,5 +1,11 @@
 #coding: latin-1
+#
+# STEM - Blinking Counter
 
+# Este programa es un ejemplo de utilizacion de python para implementar un simple
+# contador de penstaneos basados en una senal de EMG/EMG/EOG.
+#
+# Frecuencia de sampleo Fs = 128
 import csv
 import numpy as np
 
