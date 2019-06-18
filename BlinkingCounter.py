@@ -66,8 +66,6 @@ eeg[43] = -130
 
 eeg = eeg - baseline_als(eeg,10000,0.5)
 
-#eeg = peakutils.baseline(eeg,1)
-
 
 import matplotlib.pyplot as plt
 fig = plt.figure()
