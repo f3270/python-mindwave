@@ -12,8 +12,6 @@ import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import spsolve
 
-import peakutils
-
 def baseline_als(y, lam, p, niter=10):
   L = len(y)
   D = sparse.diags([1,-2,1],[0,-1,-2], shape=(L,L-2))
@@ -54,17 +52,17 @@ eeg = results[1:,0]
 
 print eeg
 
-eeg = np.ones((64))
+#eeg = np.zeros((64))
 
-eeg = np.arange(64)
+#eeg = np.arange(64)
 
-print eeg.shape
+#print eeg.shape
 
-eeg[32] = 120
+#eeg[32] = -60
 
-eeg[43] = -130
+#eeg[43] = -130
 
-eeg = eeg - baseline_als(eeg,10000,0.5)
+#eeg = eeg - baseline_als(eeg,10000,0.5)
 
 
 import matplotlib.pyplot as plt
@@ -76,11 +74,9 @@ plt.legend(loc='upper left');
 plt.show()
 
 
-
-
 # El threshold corresponde al limite en amplitud a considerar para discriminar
 # que es un pestañeo de qué no lo es.
-signalthreshold = 140
+signalthreshold = 900
 
 def crest_factor(x):
     return np.max(np.abs(x))/np.sqrt(np.mean(np.square(x)))
