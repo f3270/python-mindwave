@@ -1,5 +1,8 @@
 import select, serial, threading
 from pprint import pprint
+import time
+import datetime
+import os
 
 # Byte codes
 CONNECT              = '\xc0'
@@ -23,6 +26,74 @@ ASIC_EEG_POWER       = '\x83'
 STATUS_CONNECTED     = 'connected'
 STATUS_SCANNING      = 'scanning'
 STATUS_STANDBY       = 'standby'
+
+# Use me to playback previous recorded files as if they were recorded now.
+# (using the same python class)
+class OfflineHeadset:
+    """
+    An Offline MindWave Headset
+    """
+    def __init__(self, filename):
+        self.basefilename = filename
+        self.readcounter = 0
+        self.running = True
+        self.fileindex = 0
+        self.f = None
+        self.poor_signal = 1
+        self.count = 0
+
+    def setup(self):
+        pass
+
+    def setupfile(self):
+        self.datasetfile = self.basefilename
+        print self.datasetfile
+        if os.path.isfile(self.datasetfile):
+            if self.f:
+                self.f.close()
+            self.f = open(self.datasetfile,'r')
+            return True
+        else:
+            return False
+
+    def nextline(self):
+        line = None
+        if self.f:
+            line = self.f.readline()
+        if (not line):
+            self.fileindex = self.fileindex + 1
+
+            if self.setupfile():
+                return self.nextline()
+            else:
+                return None
+        else:
+            return line
+
+    def dequeue(self):
+        line = self.nextline()
+        if (line):
+            data = line.split('\r\n')[0].split(' ')
+            self.raw_value = data[1]
+            self.attention = data[2]
+            self.meditation = data[3]
+            self.blink = data[4]
+
+            self.readcounter = self.readcounter + 1
+            self.count = self.count
+            return self
+        else:
+            self.running = False
+            return None
+
+
+    def close(self):
+        if (self.f):
+            self.f.close()
+
+    def stop(self):
+        self.close()
+
 
 class Headset(object):
     """
