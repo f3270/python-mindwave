@@ -46,9 +46,7 @@ def on_raw( headset, rawvalue):
     print("Count %d :Raw value: %s, Attention: %s, Meditation: %s, Blink: %s" % (headset.count, headset.raw_value, headset.attention, headset.meditation, headset.blink))
 
     ts = time.time()
-    if (starttime==0):
-        starttime = ts
-    f.write( str(ts-starttime) + ' ' + str(count) + ' ' + str(eeg) + ' ' + str(attention) + ' ' + str(meditation) + ' ' + str(blink) + '\n')
+    f.write( str(ts) + ' ' + str(count) + ' ' + str(eeg) + ' ' + str(attention) + ' ' + str(meditation) + ' ' + str(blink) + '\n')
 
 headset.raw_value_handlers.append( on_raw )
 
