@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import select, serial, threading
 from pprint import pprint
 import time
@@ -47,7 +49,7 @@ class OfflineHeadset:
 
     def setupfile(self):
         self.datasetfile = self.basefilename
-        print self.datasetfile
+        print(self.datasetfile)
         if os.path.isfile(self.datasetfile):
             if self.f:
                 self.f.close()
