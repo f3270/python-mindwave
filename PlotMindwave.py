@@ -1,12 +1,13 @@
 #coding: latin-1
 #
-# Run me with frameworkpython inside a virtual environment.
-# Or install the environment.yml for Anaconda.
-
 # This program uses Mindawave object to connect using bluetooth to Mindwave
 # and get the raw eeg signals from there.
 # 
 # It also plot the signal using matplotlib.
+#
+# The data is also dumped into a file, but keep in mind that the capture of data
+# from python can be slower than the driver and the effictive sampling frequency
+# could be lower.
 #
 # Fs = 128 (nominally it should be 512 but never managed to work at that sampling freq)
 

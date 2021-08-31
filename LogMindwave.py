@@ -13,7 +13,7 @@ import time, datetime, sys
 import matplotlib.pyplot as plt
 import sys
 
-lamdalength = 10
+lamdalength = 60
 Fs=128
 show=False
 
@@ -43,17 +43,19 @@ f = open(filename, 'w')
 def on_raw( headset, rawvalue):
     #time.sleep(.01)
     (count,eeg, attention, meditation, blink) = (headset.count, headset.raw_value, headset.attention, headset.meditation, headset.blink)
-    print("Count %d :Raw value: %s, Attention: %s, Meditation: %s, Blink: %s" % (headset.count, headset.raw_value, headset.attention, headset.meditation, headset.blink))
+    #print("Count %d :Raw value: %s, Attention: %s, Meditation: %s, Blink: %s" % (headset.count, headset.raw_value, headset.attention, headset.meditation, headset.blink))
 
     ts = time.time()
     f.write( str(ts) + ' ' + str(count) + ' ' + str(eeg) + ' ' + str(attention) + ' ' + str(meditation) + ' ' + str(blink) + '\n')
 
-headset.raw_value_handlers.append( on_raw )
+
 
 try:
     while (headset.poor_signal > 5):
         print("Headset signal noisy %d. Adjust the headset and the earclip." % (headset.poor_signal))
         time.sleep(0.01)
+
+    headset.raw_value_handlers.append( on_raw )
         
     print("Writing %d seconds output to %s" % (lamdalength,filename))
     stime = time.time()
