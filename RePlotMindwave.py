@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import sys
 
 lamdalength = 10
-Fs=128
+Fs=512
 show=False
 
 # Please provide the number of sample points to take
@@ -35,7 +35,7 @@ print ('Please remove the VGA connection that sometimes interfere with Mindwave'
 import mindwave, time
 
 #headset = mindwave.Headset('/dev/tty.MindWaveMobile-DevA','ef47')
-headset = mindwave.OfflineHeadset()
+headset = mindwave.OfflineHeadset(sys.argv[2])
 
 time.sleep(2)
 

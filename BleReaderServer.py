@@ -109,11 +109,11 @@ filename = './data/eeg.'+st+'.dat'
 f = open(filename, 'w')
 
 while (headset.poor_signal > 5):
-    print "Headset signal noisy %d. Adjust the headset to adjust better to your forehead." % (headset.poor_signal)
+    print ("Headset signal noisy %d. Adjust the headset to adjust better to your forehead." % (headset.poor_signal))
 
 try:
     counter = 0
-    print "Writing output to "+filename
+    print ("Writing output to "+filename)
     while (True):
         time.sleep(.01)
         (eeg, attention, meditation) = (headset.raw_value, headset.attention, headset.meditation)
@@ -130,14 +130,14 @@ try:
             if connsock == serversock:
                 sockfd, addr = serversock.accept()
                 conn_list.append( sockfd )
-                print "Client (%s, %s) connected " % addr
+                print ("Client (%s, %s) connected " % addr)
 
             else:
                 try:
                     sent = connsock.send(str(eeg) + ' ' + str(attention) + ' ' + str(meditation) +  ' ' + str(counter) + '\r\n')
 
                 except:
-                    print  "Client (%s, %s) is offline " % addr
+                    print  ("Client (%s, %s) is offline " % addr)
                     connsock.close()
                     conn_list.remove(connsock)
                     continue
@@ -146,7 +146,7 @@ try:
         if (counter >= 256):
             counter = 0
 except Exception as e:
-    print e
+    print (e)
 finally:
     headset.disconnect()
     headset.serial_close()
@@ -157,7 +157,7 @@ finally:
 try:
     headset.disconnect()
     headset.serial_close()
-    print 'Serial released'
+    print ('Serial released')
 finally:
     pass
 
@@ -165,6 +165,6 @@ try:
     f.close()
     sock.close()
     serversock.close()
-    print 'Socket released'
+    print ('Socket released')
 finally:
     pass

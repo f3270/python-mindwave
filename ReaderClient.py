@@ -32,7 +32,7 @@ try:
         data = myfile.readline()
         rows = data.split(' ')
 
-        print data
+        print (data)
 
         eeg = rows[0]
         attention = rows[1]

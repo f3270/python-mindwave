@@ -27,7 +27,7 @@ class Plotter:
 
     def plotdata(self,new_values):
         # is  a valid message struct
-        #print new_values
+        #print (new_values)
 
         self.x.append( float(new_values[0]))
         self.y.append( float(new_values[1]))

@@ -64,7 +64,7 @@ else:
 #     window = window[N/2:N]
 #     #window = window[1:N]
 
-print 'Please remove the VGA connection that sometimes interfere with Mindwave'
+print ('Please remove the VGA connection that sometimes interfere with Mindwave')
 
 import numpy as np
 import mindwave, time
@@ -110,9 +110,9 @@ mistakes = 0
 plt.title("Entrenamiento...")
 try:
     while (headset.poor_signal > 5):
-        print "Headset signal noisy %d. Adjust the headset and the earclip." % (headset.poor_signal)
+        print ("Headset signal noisy %d. Adjust the headset and the earclip." % (headset.poor_signal))
 
-    print "Writing %d seconds output to %s" % (lamdalength,filename)
+    print ("Writing %d seconds output to %s" % (lamdalength,filename))
     for i in range(0,samplepoints):
         #time.sleep(.01)
         headset.dequeue()
@@ -156,9 +156,9 @@ sys.stdin.read(1)
 plt.title("A Relajarse !!!!")
 try:
     while (headset.poor_signal > 5):
-        print "Headset signal noisy %d. Adjust the headset and the earclip." % (headset.poor_signal)
+        print ("Headset signal noisy %d. Adjust the headset and the earclip." % (headset.poor_signal))
 
-    print "Writing %d seconds output to %s" % (lamdalength,filename)
+    print ("Writing %d seconds output to %s" % (lamdalength,filename))
     for i in range(0,samplepoints):
         #time.sleep(.01)
         headset.dequeue()

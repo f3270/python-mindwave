@@ -6,15 +6,15 @@
 # The on_raw function is executed everytime a new raw value is read so it should be
 # capturing samples at the effective rate.
 #
-# Fs = 128
+# Fs = 512
 
 import socket,select
 import time, datetime, sys
 import matplotlib.pyplot as plt
 import sys
 
-lamdalength = 60
-Fs=128
+lamdalength = 60*1
+Fs=512                          # The real output of the device is 512 when used directly.
 show=False
 
 # Please provide the number of sample points to take
@@ -26,7 +26,7 @@ else:
 print('Please remove the VGA connection that sometimes interfere with Mindwave')
 
 import mindwave, time
-headset = mindwave.Headset('/dev/tty.MindWaveMobile-DevA','ef47')
+headset = mindwave.Headset('/dev/tty.MindWaveMobile','ef47')
 
 time.sleep(2)
 
@@ -47,7 +47,6 @@ def on_raw( headset, rawvalue):
 
     ts = time.time()
     f.write( str(ts) + ' ' + str(count) + ' ' + str(eeg) + ' ' + str(attention) + ' ' + str(meditation) + ' ' + str(blink) + '\n')
-
 
 
 try:

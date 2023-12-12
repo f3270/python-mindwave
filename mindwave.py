@@ -1,3 +1,11 @@
+'''
+Mindwave Mobile Serial Driver for Python 3.x
+
+This driver implements the serial protocol that is being used in the Mindwave Mobile Headset.
+
+ OfflineHeadset: this class can be used in the same as Headset to replay a previous stored file.
+
+'''
 from __future__ import print_function
 
 import select, serial, threading
@@ -7,22 +15,22 @@ import datetime
 import os
 
 # Byte codes
-CONNECT              = '\xc0'
-DISCONNECT           = '\xc1'
-AUTOCONNECT          = '\xc2'
-SYNC                 = '\xaa'
-EXCODE               = '\x55'
-POOR_SIGNAL          = '\x02'
-ATTENTION            = '\x04'
-MEDITATION           = '\x05'
-BLINK                = '\x16'
-HEADSET_CONNECTED    = '\xd0'
-HEADSET_NOT_FOUND    = '\xd1'
-HEADSET_DISCONNECTED = '\xd2'
-REQUEST_DENIED       = '\xd3'
-STANDBY_SCAN         = '\xd4'
-RAW_VALUE            = '\x80'
-ASIC_EEG_POWER       = '\x83'
+CONNECT              = b'\xc0'
+DISCONNECT           = b'\xc1'
+AUTOCONNECT          = b'\xc2'
+SYNC                 = b'\xaa'
+EXCODE               = 0x55
+POOR_SIGNAL          = 0x02
+ATTENTION            = 0x04
+MEDITATION           = 0x05
+BLINK                = 0x16
+HEADSET_CONNECTED    = b'\xd0'
+HEADSET_NOT_FOUND    = b'\xd1'
+HEADSET_DISCONNECTED = b'\xd2'
+REQUEST_DENIED       = b'\xd3'
+STANDBY_SCAN         = b'\xd4'
+RAW_VALUE            = 0x80
+ASIC_EEG_POWER       = b'\x83'
 
 # Status codes
 STATUS_CONNECTED     = 'connected'
@@ -121,7 +129,7 @@ class Headset(object):
             # Re-apply settings to ensure packet stream
             s.write(DISCONNECT)
             d = s.getSettingsDict()
-            for i in xrange(2):
+            for i in range(2):
                 d['rtscts'] = not d['rtscts']
                 s.applySettingsDict(d)
 
@@ -141,7 +149,7 @@ class Headset(object):
                         payload = s.read(plength)
 
                         # Verify its checksum
-                        val = sum(ord(b) for b in payload[:-1])
+                        val = sum(b for b in payload[:-1])
                         val &= 0xff
                         val = ~val & 0xff
                         chksum = ord(s.read())
@@ -179,7 +187,7 @@ class Headset(object):
                         code, payload = payload[0], payload[1:]
                     except IndexError:
                         pass
-                if ord(code) < 0x80:
+                if code < 0x80:
                     # This is a single-byte code
                     try:
                         value, payload = payload[0], payload[1:]
@@ -188,7 +196,7 @@ class Headset(object):
                     if code == POOR_SIGNAL:
                         # Poor signal
                         old_poor_signal = self.headset.poor_signal
-                        self.headset.poor_signal = ord(value)
+                        self.headset.poor_signal = value
                         if self.headset.poor_signal > 0:
                             if old_poor_signal == 0:
                                 for handler in \
@@ -203,30 +211,30 @@ class Headset(object):
                                             self.headset.poor_signal)
                     elif code == ATTENTION:
                         # Attention level
-                        self.headset.attention = ord(value)
+                        self.headset.attention = value
                         for handler in self.headset.attention_handlers:
                             handler(self.headset, self.headset.attention)
                     elif code == MEDITATION:
                         # Meditation level
-                        self.headset.meditation = ord(value)
+                        self.headset.meditation = value
                         for handler in self.headset.meditation_handlers:
                             handler(self.headset, self.headset.meditation)
                     elif code == BLINK:
                         # Blink strength
-                        self.headset.blink = ord(value)
+                        self.headset.blink = value
                         for handler in self.headset.blink_handlers:
                             handler(self.headset, self.headset.blink)
                 else:
                     # This is a multi-byte code
                     try:
-                        vlength, payload = ord(payload[0]), payload[1:]
+                        vlength, payload = payload[0], payload[1:]
                     except IndexError:
                         continue
                     value, payload = payload[:vlength], payload[vlength:]
 
                     # FIX: accessing value crashes elseway
                     if code == RAW_VALUE and len(value) >= 2:
-                        raw=ord(value[0])*256+ord(value[1])
+                        raw=value[0]*256+value[1]
                         if (raw>=32768):
                             raw=raw-65536
                         self.headset.raw_value = raw
