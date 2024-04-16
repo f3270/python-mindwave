@@ -36,3 +36,5 @@ nosetests.xml
 
 data
 .DS_Store
+*.swp
+Pipfile.lock

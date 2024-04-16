@@ -1,7 +1,8 @@
 import mindwave, time
 from pprint import pprint
 
-headset = mindwave.Headset('/dev/tty.MindWaveMobile-DevA','ef47')
+# headset = mindwave.Headset('/dev/tty.MindWaveMobile-DevA','ef47')
+headset = mindwave.Headset('/dev/tty.MindWaveMobile','ef47')
 time.sleep(2)
 
 attention = 0
